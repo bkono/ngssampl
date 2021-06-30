@@ -28,6 +28,7 @@ func CLI(args []string) error {
 	var app appEnv
 	err := app.ParseArgs(args)
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		return err
 	}
 	if err = app.Exec(); err != nil {
@@ -44,7 +45,7 @@ func (app *appEnv) ParseArgs(args []string) error {
 
 	app.Logger = log.New(os.Stderr, AppName+" ", log.LstdFlags)
 	fl.Usage = func() {
-		fmt.Fprintf(fl.Output(), `cliref - 
+		fmt.Fprintf(fl.Output(), `ngssampl - 
 
 Usage:
 
@@ -122,6 +123,7 @@ func (app *appEnv) Exec() error {
 	}
 
 	<-sigs
+	app.Println("exiting Exec")
 
 	return err
 }
