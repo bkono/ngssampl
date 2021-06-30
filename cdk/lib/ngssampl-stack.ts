@@ -18,15 +18,24 @@ export class NgssamplStack extends cdk.Stack {
     taskDefinition.addContainer("Pub", {
       image: ecs.ContainerImage.fromAsset("../"),
       command: ["./app", "-pub", "-creds", "sampler.creds"],
+      logging: new ecs.AwsLogDriver({ streamPrefix: "pub" }),
     });
     taskDefinition.addContainer("Sub", {
       image: ecs.ContainerImage.fromAsset("../"),
       command: ["./app", "-sub", "-creds", "sampler.creds"],
+      logging: new ecs.AwsLogDriver({ streamPrefix: "sub" }),
     });
 
-    new ecs.FargateService(this, "Service", {
+    const svc = new ecs.FargateService(this, "Service", {
       cluster,
       taskDefinition,
     });
+
+    svc.connections.addSecurityGroup(
+      new ec2.SecurityGroup(this, "OutboundSecGroup", {
+        vpc,
+        allowAllOutbound: true,
+      })
+    );
   }
 }
